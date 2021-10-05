@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 16px;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #container {
+      margin: 5vh auto;
+      height: 92vh;
+      width: 82vw;
+      overflow: hidden;
+      border-radius: 10px;
+      border: #ffffff 1px dashed;
+    }
+
+    #text-content {
+      width: 100%;
+      height: 40vh;
+      text-align: center;
+      padding-top: 20vh;
+    }
+
+    #option-container {
+      width: 80vw;
+      margin: 0 auto;
+      height: 30vh;
+      border: #ffffff 1px solid;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #name {
+      border: #ffffff 1px solid;
+      transform: skewX(-45deg);
+      padding-left: 5vw;
+      padding-right: 3vw;
+      height: 5vh;
+      display: inline-block;
+      line-height: 6vh;
+      margin-left: -2vw;
+      margin-top: -1vh;
+    }
+
+    #name>div {
+      transform: skewX(45deg);
+    }
+
+    #options {
+      margin-top: 5vh;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    #options .option {
+      line-height: 5vh;
+      height: 5vh;
+      width: 49%;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.5s ease;
+    }
+
+    #options .end {
+      line-height: 10vh;
+      height: 10vh;
+      font-size: 24px;
+      width: 100%;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    #options .option:hover {
+      font-size: 25px;
+    }
+
+    #options .option:hover:before {
+      content: "🌟";
+    }
+
+    #goback-begin {
+      cursor: pointer;
+      position: absolute;
+      right: 10vw;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <div id="goback-begin">从头开始🌿</div>
+    <div id="text-content">
+    </div>
+    <div id="option-container">
+      <div id="name"></div>
+      <div id="options"></div>
+    </div>
+  </div>
+  <script>
+    let currentUnit;
+    const unitList = [{ "id": "0", "name": "寒草", "font-color": "red", "text": "你是谁", "unit-option": [{ "text": "a", "next": "1" }, { "text": "b", "next": "2" }] }, { "id": "1", "name": "小辛", "font-color": "red", "text": "你是谁", "next": "2", "background-color": "white" }, { "id": "2", "name": "xxx", "text": "好的" }];
+    const unitMap = new Map();
+    for (const unit of unitList) {
+      unitMap.set(unit.id, unit);
+    }
+    const containerDom = document.getElementById('container');
+    const textContentDom = document.getElementById('text-content');
+    const nameDom = document.getElementById('name');
+    const optionContainerDom = document.getElementById('option-container');
+    const optionDom = document.getElementById('options');
+    const resetDom = document.getElementById('goback-begin');
+
+    resetDom.onclick = function () {
+      init();
+    }
+    function init() {
+      currentUnit = unitMap.get("0");
+      update();
+    }
+    function update() {
+      // name
+      if (!currentUnit.name) {
+        nameDom.style.opacity = 0;
+      } else {
+        nameDom.style.opacity = 1;
+        nameDom.innerHTML = '<div>'+ currentUnit.name +'</div>';
+      }
+
+      // text
+      textContentDom.innerText = currentUnit.text;
+
+      // font-color
+      document.body.style.color = currentUnit['font-color'] || '#fff';
+      containerDom.style.borderColor = currentUnit['font-color'] || '#fff';
+      optionContainerDom.style.borderColor = currentUnit['font-color'] || '#fff';
+      nameDom.style.borderColor = currentUnit['font-color'] || '#fff';
+      // background-color
+      document.body.style.background = currentUnit['background-color'] || '#000';
+      // options
+      if (!currentUnit.next && !currentUnit['unit-option']) {
+        optionDom.innerHTML = '<div class="end">End</div>';
+      } else if (currentUnit.next) {
+        optionDom.innerHTML = '<div class="option">Next</div>';
+        document.getElementsByClassName('option')[0].onclick = function () {
+          currentUnit = unitMap.get(currentUnit.next);
+          update();
+        }
+      } else {
+        let domStr = '';
+        for (const option of currentUnit['unit-option']) {
+          domStr += '<div class="option">' + option.text + '</div>';
+        }
+        optionDom.innerHTML = domStr;
+        const optionDomList = document.getElementsByClassName('option');
+        Array.from(optionDomList).forEach((optionDom, index) => {
+          optionDom.onclick = function () {
+            currentUnit = unitMap.get(currentUnit['unit-option'][index].next);
+            update();
+          }
+        })
+      }
+    }
+    init();
+  </script>
+</body>
+
+</html>
